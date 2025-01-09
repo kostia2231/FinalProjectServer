@@ -6,9 +6,9 @@ import { Response, Request } from "express";
 class AuthControllers {
   public async register(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password } = req.body;
+      const { username, email, fullName, password } = req.body;
 
-      if (!username || !email || !password) {
+      if (!username || !email || !password || !fullName) {
         res.status(400).json({ message: "all fields are required" });
         return;
       }
@@ -27,6 +27,7 @@ class AuthControllers {
       const newUser = new UserModel({
         username,
         email,
+        fullName,
         password: hashedPassword,
       });
 
@@ -70,7 +71,7 @@ class AuthControllers {
         { expiresIn: "6h" },
       );
 
-      res.status(200).json({ messsage: "login successful", token });
+      res.status(200).json({ message: "login successful", token });
       return;
     } catch (err) {
       res
