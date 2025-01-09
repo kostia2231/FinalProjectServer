@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import authRouter from "./routers/authRouter.js";
 import "dotenv/config";
 
 class Server {
@@ -12,6 +13,7 @@ class Server {
     this.port = Number(process.env.PORT) || 8080;
     this.Middlewares();
     this.InitDB();
+    this.Routes();
   }
 
   private Middlewares() {
@@ -25,6 +27,10 @@ class Server {
     } catch (err) {
       console.error(`DB connection failed: ${(err as Error).stack}`);
     }
+  }
+
+  private Routes() {
+    this.app.use("/auth", authRouter);
   }
 
   public startServer() {

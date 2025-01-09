@@ -3,7 +3,7 @@ import "dotenv/config";
 
 const uri: string | undefined = process.env.URI;
 
-const connectDB = async () => {
+const connectDB = async (): Promise<void> => {
   try {
     await mongoose.connect(uri || "");
     console.log("DB connected successfully");
