@@ -83,7 +83,10 @@ class AuthControllers {
     }
   }
 
-  public async newPasswordRequest(req: Request, res: Response): Promise<void> {
+  public async resetPasswordRequest(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
     try {
       const { email } = req.body;
       if (!email) {

@@ -7,7 +7,10 @@ const authControllers = new AuthControllers();
 authRouter.post("/register", authControllers.register);
 authRouter.post("/login", authControllers.login);
 
-authRouter.post("/new-password-request", authControllers.newPasswordRequest);
+authRouter.post(
+  "/reset-password-request",
+  authControllers.resetPasswordRequest,
+);
 authRouter.post("/reset-password/:token", authControllers.resetPassword);
 
 export default authRouter;
