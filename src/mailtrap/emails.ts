@@ -5,10 +5,10 @@ export async function sendPasswordResetEmail(
   resetURL: string,
 ): Promise<void> {
   if (!email || !/\S+@\S+\.\S+/.test(email)) {
-    throw new Error("invalid email address provided.");
+    throw new Error("invalid email address provided");
   }
   if (!resetURL || typeof resetURL !== "string") {
-    throw new Error("invalid reset URL provided.");
+    throw new Error("invalid reset URL provided");
   }
 
   try {
@@ -17,9 +17,9 @@ export async function sendPasswordResetEmail(
     const response = await mailClient.send({
       from: mailSender,
       to: recipient,
-      subject: "Password Reset",
+      subject: "Password Reset Request",
       text: `Reset Url: ${resetURL}`,
-      category: "Password Reset",
+      category: "Password Reset Request",
     });
 
     console.log("email is sent", response);
@@ -32,7 +32,7 @@ export async function sendPasswordResetEmail(
 
 export async function sendPasswordSuccessEmail(email: string): Promise<void> {
   if (!email || !/\S+@\S+\.\S+/.test(email)) {
-    throw new Error("invalid email address provided.");
+    throw new Error("invalid email address provided");
   }
 
   try {
@@ -40,11 +40,15 @@ export async function sendPasswordSuccessEmail(email: string): Promise<void> {
     const response = await mailClient.send({
       from: mailSender,
       to: recipient,
-      subject: "Password Reset",
+      subject: "Password Reset Success",
       text: "Password has been reset",
-      category: "Password Reset",
+      category: "Password Reset Success",
     });
 
     console.log("password has been reset", response);
-  } catch (err) {}
+  } catch (err) {
+    const errorMessage = `error occurred while sending a success reset email: ${(err as Error).message}`;
+    console.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 }
