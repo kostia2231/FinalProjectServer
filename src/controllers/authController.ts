@@ -1,4 +1,8 @@
 import UserModel from "../models/User.js";
+import {
+  sendPasswordResetEmail,
+  sendPasswordSuccessEmail,
+} from "../mailtrap/emails.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
@@ -101,11 +105,53 @@ class AuthControllers {
 
       await user.save();
 
-      //send an email to a user func
+      await sendPasswordResetEmail(
+        user.email,
+        `${process.env.CLIENT_URL}/reset-password/${resetToken}`,
+      );
 
       res
         .status(200)
         .json({ message: "password reset token generated", resetToken });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "server error", error: (err as Error).stack });
+    }
+  }
+
+  public async resetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+
+      if (!token || !password) {
+        res.status(400).json({ message: "token and password are required" });
+        return;
+      }
+
+      const user = await UserModel.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpiresAt: { $gt: new Date() },
+      });
+      if (!user) {
+        res.status(400).json({ message: "invalid or expired token" });
+        return;
+      }
+
+      const salt = 10;
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      user.password = hashedPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpiresAt = undefined;
+
+      await user.save();
+
+      await sendPasswordSuccessEmail(user.email);
+      res
+        .status(200)
+        .json({ success: true, message: "password reset successfully" });
     } catch (err) {
       res
         .status(500)
