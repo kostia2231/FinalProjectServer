@@ -14,6 +14,10 @@ interface IUser extends Document {
   following: Types.ObjectId[];
   postsCount: number;
   posts: Types.ObjectId[];
+  resetPasswordToken?: string;
+  resetPasswordExpiresAt?: Date;
+  verificationToken?: string;
+  verificationTokenExpiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +37,10 @@ const UserSchema = new Schema<IUser>(
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     postsCount: { type: Number, default: 0 },
     posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+    resetPasswordToken: { type: String },
+    resetPasswordExpiresAt: { type: Date },
+    verificationToken: { type: String },
+    verificationTokenExpiresAt: { type: Date },
   },
   { timestamps: true },
 );
