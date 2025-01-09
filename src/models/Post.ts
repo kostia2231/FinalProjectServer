@@ -25,5 +25,5 @@ const PostSchema = new Schema<IPost>(
   { timestamps: true },
 );
 
-const PostModel = model("Post", PostSchema);
+const PostModel = model<IPost>("Post", PostSchema);
 export default PostModel;
