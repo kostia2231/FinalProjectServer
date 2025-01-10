@@ -9,16 +9,17 @@ class Server {
   private port: number;
 
   constructor() {
-    this.app = express();
     this.port = Number(process.env.PORT) || 8080;
+    this.app = express();
     this.Middlewares();
     this.InitDB();
     this.Routes();
   }
 
   private Middlewares() {
-    this.app.use(express.json());
     this.app.use(cors());
+    this.app.use(express.json());
+    this.app.use(express.urlencoded());
   }
 
   private async InitDB() {

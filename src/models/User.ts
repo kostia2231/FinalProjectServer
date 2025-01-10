@@ -7,7 +7,7 @@ interface IUser extends Document {
   password: string;
   bio: string;
   website: string;
-  profile_img: string;
+  profileImg: string;
   followersCount: number;
   followers: Types.ObjectId[];
   followingCount: number;
@@ -30,7 +30,7 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true },
     bio: { type: String, default: "" },
     website: { type: String, default: "" },
-    profile_img: { type: String, default: "" },
+    profileImg: { type: String, default: "" },
     followersCount: { type: Number, default: 0 },
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     followingCount: { type: Number, default: 0 },

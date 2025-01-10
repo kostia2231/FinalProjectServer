@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { Response, Request, NextFunction } from "express";
 import { TokenPayload } from "../types/express.js";
 
-export function ifAuthenticated(
+export function isAuthenticated(
   req: Request,
   res: Response,
   next: NextFunction,

@@ -9,7 +9,7 @@ import crypto from "node:crypto";
 import { Response, Request } from "express";
 
 class AuthControllers {
-  public async register(req: Request, res: Response): Promise<void> {
+  public static async register(req: Request, res: Response): Promise<void> {
     try {
       const { username, email, fullName, password } = req.body;
       if (!username || !email || !password || !fullName) {
@@ -46,7 +46,7 @@ class AuthControllers {
     }
   }
 
-  public async login(req: Request, res: Response): Promise<void> {
+  public static async login(req: Request, res: Response): Promise<void> {
     try {
       const { username, email, password } = req.body;
       if ((!username && !password) || (!email && !password)) {
@@ -83,7 +83,7 @@ class AuthControllers {
     }
   }
 
-  public async resetPasswordRequest(
+  public static async resetPasswordRequest(
     req: Request,
     res: Response,
   ): Promise<void> {
@@ -123,7 +123,10 @@ class AuthControllers {
     }
   }
 
-  public async resetPassword(req: Request, res: Response): Promise<void> {
+  public static async resetPassword(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
     try {
       const { token } = req.params;
       const { password } = req.body;
