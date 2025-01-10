@@ -1,10 +1,11 @@
 import { mailClient, mailSender } from "./index.js";
+import validator from "validator";
 
 export async function sendPasswordResetEmail(
   email: string,
   resetURL: string,
 ): Promise<void> {
-  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+  if (!email || !validator.isEmail(email)) {
     throw new Error("invalid email address provided");
   }
   if (!resetURL || typeof resetURL !== "string") {
@@ -31,7 +32,7 @@ export async function sendPasswordResetEmail(
 }
 
 export async function sendPasswordSuccessEmail(email: string): Promise<void> {
-  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+  if (!email || !validator.isEmail(email)) {
     throw new Error("invalid email address provided");
   }
 
