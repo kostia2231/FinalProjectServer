@@ -48,14 +48,14 @@ class AuthControllers {
 
   public static async login(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password } = req.body;
-      if ((!username && !password) || (!email && !password)) {
+      const { login, password } = req.body;
+      if (!login && !password) {
         res.status(400).json({ message: "wrong credentials" });
         return;
       }
 
       const user = await UserModel.findOne({
-        $or: [{ username }, { email }],
+        $or: [{ username: login }, { email: login }],
       });
       if (!user) {
         res.status(400).json({ message: "user doesn't exist" });

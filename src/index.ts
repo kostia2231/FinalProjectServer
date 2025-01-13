@@ -19,7 +19,7 @@ class Server {
   private Middlewares() {
     this.app.use(cors());
     this.app.use(express.json());
-    this.app.use(express.urlencoded());
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
   private async InitDB() {
