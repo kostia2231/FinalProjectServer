@@ -27,8 +27,11 @@ class UserControllers {
   public static async updateUser(req: Request, res: Response): Promise<void> {
     try {
       const { username } = req.params;
-      if (!username) {
-        res.status(400).json({ message: "username is required" });
+
+      if (!username || typeof username !== "string") {
+        res
+          .status(400)
+          .json({ message: "username is required and must be a string" });
         return;
       }
 
@@ -38,41 +41,66 @@ class UserControllers {
         return;
       }
 
+      if (!req.body || Object.keys(req.body).length === 0) {
+        res.status(400).json({ message: "Request body cannot be empty" });
+        return;
+      }
+
       const { bio, website, new_username } = req.body;
 
-      if (
-        new_username &&
-        validator.matches(new_username, "^[a-zA-Z0-9_\.\-]*$") &&
-        validator.isLength(new_username, { max: 20 }) &&
-        new_username !== user.username
-      ) {
-        const isExists = await UserModel.findOne({ username: new_username });
-        if (isExists) {
-          res.status(400).json({ message: "username already exists" });
+      if (new_username) {
+        if (
+          typeof new_username !== "string" ||
+          !validator.matches(new_username, "^[a-zA-Z0-9_\\.-]*$") ||
+          !validator.isLength(new_username, { max: 20 })
+        ) {
+          res.status(400).json({
+            message:
+              "Invalid new username. It must be unique, alphanumeric, and less than 20 characters.",
+          });
           return;
         }
+
+        // const isExists = await UserModel.findOne({ username: new_username });
+        // if (isExists) {
+        //   res.status(400).json({ message: "Username already exists" });
+        //   return;
+        // }
         user.username = new_username;
       }
 
-      if (bio && validator.isLength(bio, { max: 150 }) && bio !== user.bio) {
+      if (bio) {
+        if (typeof bio !== "string" || !validator.isLength(bio, { max: 150 })) {
+          res.status(400).json({
+            message:
+              "Invalid bio. It must be a string and less than 150 characters.",
+          });
+          return;
+        }
         user.bio = bio;
       }
 
-      if (
-        website &&
-        validator.isLength(website, { max: 120 }) &&
-        website !== user.website &&
-        validator.isURL(website)
-      ) {
+      if (website) {
+        if (
+          typeof website !== "string" ||
+          !validator.isURL(website) ||
+          !validator.isLength(website, { max: 120 })
+        ) {
+          res.status(400).json({
+            message:
+              "Invalid website. It must be a valid URL and less than 120 characters.",
+          });
+          return;
+        }
         user.website = website;
       }
 
       await user.save();
-      res.status(200).json({ message: "user updated", user });
+      res.status(200).json({ message: "user updated successfully", user });
     } catch (err) {
-      console.error(`error editing users: ${(err as Error).stack}`);
+      console.error(`error updating user: ${(err as Error).stack}`);
       res.status(500).json({
-        message: "server error",
+        message: "internal server error",
         error: (err as Error).message,
       });
     }

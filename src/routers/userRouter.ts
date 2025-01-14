@@ -6,6 +6,7 @@ const userRouter: Router = Router();
 
 userRouter.get("/:username", isAuthenticated, UserControllers.getUser);
 userRouter.get("/", isAuthenticated, UserControllers.searchUser);
-userRouter.get("/:username/edit", isAuthenticated, UserControllers.updateUser);
+
+userRouter.put("/:username/edit", isAuthenticated, UserControllers.updateUser);
 
 export default userRouter;
