@@ -118,6 +118,16 @@ class PostController {
         return;
       }
 
+      const publicIds: string[] = post.imgUrls
+        .map((url: string) => {
+          const match = url.match(/\/upload\/([^/]+)/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean) as string[];
+
+      if (publicIds.length > 0)
+        await FileUploader.deleteFromCloudinary(publicIds);
+
       await post.deleteOne();
       res.status(200).json({ message: "post deleted" });
     } catch (err) {

@@ -35,13 +35,13 @@ class FileUploader {
     }
   }
 
-  public static async deleteFromCloudinary(publicId: string): Promise<void> {
+  public static async deleteFromCloudinary(publicIds: string[]): Promise<void> {
     const deleteUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/delete_resources`;
 
     try {
       const response = await axios.post(
         deleteUrl,
-        { public_ids: [publicId] },
+        { public_ids: publicIds },
         {
           auth: {
             username: String(process.env.CLOUDINARY_API_KEY),
@@ -50,17 +50,21 @@ class FileUploader {
         },
       );
 
-      if (
-        response.data &&
-        response.data.deleted &&
-        response.data.deleted[publicId] === "deleted"
-      ) {
-        console.log(
-          `File with public ID ${publicId} has been deleted from Cloudinary.`,
-        );
+      if (response.data && response.data.deleted) {
+        publicIds.forEach((id) => {
+          if (response.data.deleted[id] === "deleted") {
+            console.log(
+              `File with public ID ${id} has been deleted from Cloudinary.`,
+            );
+          } else {
+            console.error(
+              `Failed to delete file with public ID ${id}: ${response.data.deleted[id]}`,
+            );
+          }
+        });
       } else {
         throw new Error(
-          `Failed to delete file from Cloudinary: ${response.data.error}`,
+          "Failed to delete file from Cloudinary: no deletion status in response.",
         );
       }
     } catch (err) {
