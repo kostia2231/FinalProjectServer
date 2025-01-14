@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { Response, Request } from "express";
+import "dotenv/config";
 
 class AuthControllers {
   public static async register(req: Request, res: Response): Promise<void> {

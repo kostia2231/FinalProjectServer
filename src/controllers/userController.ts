@@ -1,6 +1,8 @@
 import validator from "validator";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
+import "dotenv/config";
 
 class UserControllers {
   public static async getUser(req: Request, res: Response): Promise<void> {
@@ -60,12 +62,6 @@ class UserControllers {
           });
           return;
         }
-
-        // const isExists = await UserModel.findOne({ username: new_username });
-        // if (isExists) {
-        //   res.status(400).json({ message: "Username already exists" });
-        //   return;
-        // }
         user.username = new_username;
       }
 
@@ -96,7 +92,18 @@ class UserControllers {
       }
 
       await user.save();
-      res.status(200).json({ message: "user updated successfully", user });
+
+      const updatedToken = jwt.sign(
+        { id: user._id, username: user.username, email: user.email },
+        process.env.JWT_SECRET as string,
+        { expiresIn: "6h" },
+      );
+
+      res.status(200).json({
+        message: "user updated successfully",
+        user,
+        token: updatedToken,
+      });
     } catch (err) {
       console.error(`error updating user: ${(err as Error).stack}`);
       res.status(500).json({
