@@ -3,6 +3,7 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import authRouter from "./routers/authRouter.js";
 import userRouter from "./routers/userRouter.js";
+import postRouter from "./routers/postRouter.js";
 import "dotenv/config";
 
 class Server {
@@ -34,6 +35,7 @@ class Server {
   private Routes() {
     this.app.use("/auth", authRouter);
     this.app.use("/", userRouter);
+    this.app.use("/post", postRouter);
   }
 
   public startServer() {
