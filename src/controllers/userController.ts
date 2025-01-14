@@ -51,6 +51,19 @@ class UserControllers {
       const { bio, website, new_username } = req.body;
 
       if (new_username) {
+        const isExists = await UserModel.findOne({
+          username: new_username,
+          _id: { $ne: user._id },
+        });
+        if (isExists) {
+          res
+            .status(400)
+            .json({ message: "Invalid new Username. It must be unique." });
+          return;
+        }
+      }
+
+      if (new_username) {
         if (
           typeof new_username !== "string" ||
           !validator.matches(new_username, "^[a-zA-Z0-9_\\.-]*$") ||
