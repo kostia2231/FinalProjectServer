@@ -12,4 +12,6 @@ postRouter.post(
   PostController.createPost,
 );
 
+postRouter.put("/edit", isAuthenticated, PostController.editPost);
+
 export default postRouter;

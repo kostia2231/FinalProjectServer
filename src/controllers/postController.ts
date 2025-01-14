@@ -4,7 +4,7 @@ import FileUploader from "../utils/imgUploader.js";
 
 class PostController {
   public static async createPost(
-    req: Request<{}, {}, { caption: string; user?: { _id: string } }>,
+    req: Request<{}, {}, { caption: string }>,
     res: Response,
   ): Promise<void> {
     try {
@@ -57,7 +57,42 @@ class PostController {
     }
   }
 
-  public static async editPost(req: Request, res: Response): Promise<void> {}
+  public static async editPost(req: Request, res: Response): Promise<void> {
+    try {
+      const { postId } = req.params;
+      const userId = req.user?._id;
+      const { caption } = req.body;
+      const post = await PostModel.findById(postId);
+
+      if (!postId || !userId) {
+        res.status(401).json({ message: "authentication failed" });
+        return;
+      }
+
+      if (!post) {
+        res.status(404).json({ message: "post not found" });
+        return;
+      }
+
+      if (post.userId.toString() !== userId.toString()) {
+        res
+          .status(403)
+          .json({ message: "you are not authorized to edit this post" });
+        return;
+      }
+
+      if (caption) post.caption = caption;
+
+      await post.save();
+
+      res.status(200).json({ message: "post edited successfully", post });
+    } catch (err) {
+      res.status(500).json({
+        message: "error creating post: ",
+        error: (err as Error).message,
+      });
+    }
+  }
 }
 
 export default PostController;
