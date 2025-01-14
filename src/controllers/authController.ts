@@ -83,6 +83,10 @@ class AuthControllers {
     }
   }
 
+  public static async verifyToken(req: Request, res: Response): Promise<void> {
+    res.status(200).json({ message: "access permit granted", data: req.user });
+  }
+
   public static async resetPasswordRequest(
     req: Request,
     res: Response,

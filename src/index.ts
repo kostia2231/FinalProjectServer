@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRouter from "./routers/authRouter.js";
+import userRouter from "./routers/userRouter.js";
 import "dotenv/config";
 
 class Server {
@@ -32,6 +33,7 @@ class Server {
 
   private Routes() {
     this.app.use("/auth", authRouter);
+    this.app.use("/", userRouter);
   }
 
   public startServer() {
