@@ -12,6 +12,8 @@ postRouter.post(
   PostController.createPost,
 );
 
+postRouter.get("/posts", isAuthenticated, PostController.getAllPosts);
+
 postRouter.put("/edit/:postId", isAuthenticated, PostController.editPost);
 
 postRouter.delete(

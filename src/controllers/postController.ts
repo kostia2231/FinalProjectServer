@@ -57,6 +57,24 @@ class PostController {
     }
   }
 
+  public static async getAllPosts(_req: Request, res: Response): Promise<void> {
+    try {
+      const posts = await PostModel.find().sort({ createdAt: -1 });
+
+      if (!posts || posts.length === 0) {
+        res.status(404).json({ message: "no posts found" });
+        return;
+      }
+
+      res.status(200).json({ message: "posts fetched successfully", posts });
+    } catch (err) {
+      res.status(500).json({
+        message: "Error getting posts",
+        error: (err as Error).message,
+      });
+    }
+  }
+
   public static async editPost(req: Request, res: Response): Promise<void> {
     try {
       const { postId } = req.params;
