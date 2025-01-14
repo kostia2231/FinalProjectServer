@@ -51,7 +51,7 @@ class PostController {
       res.status(200).json({ message: "post created successfully", newPost });
     } catch (err) {
       res.status(500).json({
-        message: "error creating post: ",
+        message: "error creating post",
         error: (err as Error).message,
       });
     }
@@ -88,7 +88,41 @@ class PostController {
       res.status(200).json({ message: "post edited successfully", post });
     } catch (err) {
       res.status(500).json({
-        message: "error creating post: ",
+        message: "error creating post",
+        error: (err as Error).message,
+      });
+    }
+  }
+
+  public static async deletePost(req: Request, res: Response): Promise<void> {
+    try {
+      const { postId } = req.params;
+      const userId = req.user?._id;
+
+      if (!userId) {
+        res.status(401).json({ message: "authentication failed" });
+        return;
+      }
+
+      const post = await PostModel.findById(postId);
+
+      if (!post) {
+        res.status(404).json({ message: "post not found" });
+        return;
+      }
+
+      if (post.userId.toString() !== userId.toString()) {
+        res
+          .status(403)
+          .json({ message: "you are not authorized to edit this post" });
+        return;
+      }
+
+      await post.deleteOne();
+      res.status(200).json({ message: "post deleted" });
+    } catch (err) {
+      res.status(500).json({
+        message: "error deleting post",
         error: (err as Error).message,
       });
     }

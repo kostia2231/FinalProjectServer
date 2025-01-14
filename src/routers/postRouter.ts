@@ -12,6 +12,12 @@ postRouter.post(
   PostController.createPost,
 );
 
-postRouter.put("/edit", isAuthenticated, PostController.editPost);
+postRouter.put("/edit/:postId", isAuthenticated, PostController.editPost);
+
+postRouter.delete(
+  "/delete/:postId",
+  isAuthenticated,
+  PostController.deletePost,
+);
 
 export default postRouter;
