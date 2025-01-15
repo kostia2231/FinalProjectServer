@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import PostModel from "../models/Post.js";
-import FileUploader from "../utils/imgUploader.js";
+import { FileUploader } from "../utils/imgUploader.js";
+import { extractPublicId } from "../utils/extractPublicId.js";
 
 class PostController {
   public static async createPost(
@@ -18,7 +19,7 @@ class PostController {
         return;
       }
 
-      if (!req.user || !req.user._id) {
+      if (!req.user) {
         res.status(401).json({ message: "authentication failed" });
         return;
       }
@@ -41,7 +42,7 @@ class PostController {
       const imgUrls = await Promise.all(uploadPromises);
 
       const newPost = new PostModel({
-        userId: req.user._id,
+        userId: req.user.id,
         imgUrls: imgUrls,
         caption: caption || "",
       });
@@ -55,6 +56,12 @@ class PostController {
         error: (err as Error).message,
       });
     }
+  }
+
+  //to do
+  public static async getPost(req: Request, res: Response): Promise<void> {
+    try {
+    } catch (err) {}
   }
 
   public static async getAllPosts(_req: Request, res: Response): Promise<void> {
@@ -78,7 +85,7 @@ class PostController {
   public static async editPost(req: Request, res: Response): Promise<void> {
     try {
       const { postId } = req.params;
-      const userId = req.user?._id;
+      const userId = req.user?.id;
       const { caption } = req.body;
       const post = await PostModel.findById(postId);
 
@@ -115,7 +122,7 @@ class PostController {
   public static async deletePost(req: Request, res: Response): Promise<void> {
     try {
       const { postId } = req.params;
-      const userId = req.user?._id;
+      const userId = req.user?.id;
 
       if (!userId) {
         res.status(401).json({ message: "authentication failed" });
@@ -136,18 +143,17 @@ class PostController {
         return;
       }
 
-      const publicIds: string[] = post.imgUrls
-        .map((url: string) => {
-          const match = url.match(/\/upload\/([^/]+)/);
-          return match ? match[1] : null;
-        })
-        .filter(Boolean) as string[];
+      if (post.imgUrls && post.imgUrls.length > 0) {
+        for (const imageUrl of post.imgUrls) {
+          const publicId = extractPublicId(imageUrl);
+          if (publicId) {
+            await FileUploader.deleteFromCloudinary(publicId);
+          }
+        }
 
-      if (publicIds.length > 0)
-        await FileUploader.deleteFromCloudinary(publicIds);
-
-      await post.deleteOne();
-      res.status(200).json({ message: "post deleted" });
+        await post.deleteOne();
+        res.status(200).json({ message: "post deleted" });
+      }
     } catch (err) {
       res.status(500).json({
         message: "error deleting post",

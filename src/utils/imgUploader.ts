@@ -1,80 +1,62 @@
-import axios from "axios";
-import FormData from "form-data";
-import { Readable } from "stream";
-import "dotenv/config";
+import { cloudinary } from "../config/cloudinary.js";
 
-class FileUploader {
+export class FileUploader {
   public static async uploadToCloudinary(
     buffer: Buffer,
     resourceType: "image" | "video",
-  ): Promise<string | unknown> {
-    const formData = new FormData();
-    formData.append("file", Readable.from(buffer), "file-name");
-    formData.append("resource_type", resourceType);
-    formData.append("upload_preset", "your-upload-preset");
-
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/upload`;
-
+  ): Promise<string | undefined> {
     try {
-      const response = await axios.post(uploadUrl, formData, {
-        headers: formData.getHeaders(),
-        auth: {
-          username: String(process.env.CLOUDINARY_API_KEY),
-          password: String(process.env.CLOUDINARY_API_SECRET),
+      const uploadUrl = await new Promise<string | undefined>(
+        (resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { resource_type: resourceType },
+            (error, result) => {
+              if (error) {
+                console.error("cloudinary upload error:", error);
+                reject(new Error("error uploading to Cloudinary"));
+              } else if (
+                !result?.secure_url ||
+                result.secure_url.trim() === ""
+              ) {
+                reject(
+                  new Error(
+                    "cloudinary response is missing or empty secure_url",
+                  ),
+                );
+              } else {
+                console.log("cloudinary upload success:", result.secure_url);
+                resolve(result.secure_url);
+              }
+            },
+          );
+          uploadStream.end(buffer);
         },
-      });
+      );
 
-      if (response.data && response.data.secure_url) {
-        return response.data.secure_url;
-      } else {
-        throw new Error("Cloudinary response is missing or empty secure_url");
-      }
-    } catch (err) {
-      console.error("Error during Cloudinary upload:", (err as Error).message);
-      throw new Error("Failed to upload file to Cloudinary");
+      return uploadUrl;
+    } catch (error) {
+      console.error("error during Cloudinary upload:", error);
+      throw new Error("failed to upload file to Cloudinary");
     }
   }
-
-  public static async deleteFromCloudinary(publicIds: string[]): Promise<void> {
-    const deleteUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/delete_resources`;
-
+  public static async deleteFromCloudinary(publicId: string): Promise<void> {
     try {
-      const response = await axios.post(
-        deleteUrl,
-        { public_ids: publicIds },
-        {
-          auth: {
-            username: String(process.env.CLOUDINARY_API_KEY),
-            password: String(process.env.CLOUDINARY_API_SECRET),
-          },
-        },
-      );
-
-      if (response.data && response.data.deleted) {
-        publicIds.forEach((id) => {
-          if (response.data.deleted[id] === "deleted") {
-            console.log(
-              `File with public ID ${id} has been deleted from Cloudinary.`,
-            );
-          } else {
-            console.error(
-              `Failed to delete file with public ID ${id}: ${response.data.deleted[id]}`,
-            );
-          }
-        });
+      const result = await cloudinary.uploader.destroy(publicId);
+      if (result.result === "ok") {
+        console.log(
+          `File with public ID ${publicId} has been deleted from Cloudinary.`,
+        );
       } else {
+        console.error(
+          `Error deleting file with public ID ${publicId}: ${result.error}`,
+        );
         throw new Error(
-          "Failed to delete file from Cloudinary: no deletion status in response.",
+          `Failed to delete file from Cloudinary: ${result.error}`,
         );
       }
-    } catch (err) {
-      console.error(
-        "Error during Cloudinary deletion:",
-        (err as Error).message,
-      );
+    } catch (error) {
+      console.error("Error during Cloudinary deletion:", error);
       throw new Error("Failed to delete file from Cloudinary");
     }
   }
 }
-
-export default FileUploader;
