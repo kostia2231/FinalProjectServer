@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import PostModel from "../models/Post.js";
+import UserModel from "../models/User.js";
 import { FileUploader } from "../utils/imgUploader.js";
 import { extractPublicId } from "../utils/extractPublicId.js";
 
@@ -49,6 +50,11 @@ class PostController {
 
       await newPost.save();
 
+      await UserModel.findByIdAndUpdate(req.user.id, {
+        $push: { posts: newPost._id },
+        $inc: { postsCount: 1 },
+      });
+
       res.status(200).json({ message: "post created successfully", newPost });
     } catch (err) {
       res.status(500).json({
@@ -76,6 +82,31 @@ class PostController {
     } catch (err) {
       res.status(500).json({
         message: "error fetching post",
+        error: (err as Error).message,
+      });
+    }
+  }
+
+  public static async getUserPosts(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        res.status(400).json({ message: "auth is required" });
+        return;
+      }
+
+      const posts = await PostModel.find({ userId }).sort({ createdAt: -1 });
+
+      if (!posts || posts.length === 0) {
+        res.status(404).json({ message: "no posts found for this user" });
+        return;
+      }
+
+      res.status(200).json({ message: "posts fetched successfully", posts });
+    } catch (err) {
+      res.status(500).json({
+        message: "error getting user posts",
         error: (err as Error).message,
       });
     }
@@ -167,6 +198,11 @@ class PostController {
             await FileUploader.deleteFromCloudinary(publicId);
           }
         }
+
+        await UserModel.findByIdAndUpdate(userId, {
+          $inc: { postsCount: -1 },
+          $pull: { posts: postId },
+        });
 
         await post.deleteOne();
         res.status(200).json({ message: "post deleted" });

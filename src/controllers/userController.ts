@@ -26,6 +26,26 @@ class UserControllers {
     }
   }
 
+  public static async getUserById(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        res.status(400).json({ message: "userId is required" });
+        return;
+      }
+
+      const user = await UserModel.findOne({ _id: userId }).select("-password");
+
+      res.status(200).json({ user });
+    } catch (err) {
+      console.error(`error fetching user: ${(err as Error).stack}`);
+      res.status(500).json({
+        message: "server error",
+        error: (err as Error).message,
+      });
+    }
+  }
+
   public static async updateUser(req: Request, res: Response): Promise<void> {
     try {
       const { username } = req.params;
