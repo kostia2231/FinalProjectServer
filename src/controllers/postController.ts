@@ -58,10 +58,27 @@ class PostController {
     }
   }
 
-  //to do
   public static async getPost(req: Request, res: Response): Promise<void> {
     try {
-    } catch (err) {}
+      const { postId } = req.params;
+      if (!postId) {
+        res.status(400).json({ message: "postId is required" });
+        return;
+      }
+
+      const post = await PostModel.findById(postId);
+      if (!post) {
+        res.status(404).json({ message: "post not found" });
+        return;
+      }
+
+      res.status(200).json({ message: "post fetched successfully", post });
+    } catch (err) {
+      res.status(500).json({
+        message: "error fetching post",
+        error: (err as Error).message,
+      });
+    }
   }
 
   public static async getAllPosts(_req: Request, res: Response): Promise<void> {

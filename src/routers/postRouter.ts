@@ -12,6 +12,7 @@ postRouter.post(
   PostController.createPost,
 );
 
+postRouter.get("/:postId", isAuthenticated, PostController.getPost);
 postRouter.get("/posts", isAuthenticated, PostController.getAllPosts);
 
 postRouter.put("/edit/:postId", isAuthenticated, PostController.editPost);
