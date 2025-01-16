@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import authRouter from "./routers/authRouter.js";
 import userRouter from "./routers/userRouter.js";
 import postRouter from "./routers/postRouter.js";
+import commentRouter from "./routers/commentRouter.js";
 import "dotenv/config";
 
 class Server {
@@ -36,6 +37,7 @@ class Server {
     this.app.use("/auth", authRouter);
     this.app.use("/", userRouter);
     this.app.use("/post", postRouter);
+    this.app.use("/comment", commentRouter);
   }
 
   public startServer() {
