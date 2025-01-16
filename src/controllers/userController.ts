@@ -146,13 +146,23 @@ class UserControllers {
     }
   }
 
-  public static async searchUser(_req: Request, res: Response): Promise<void> {
+  public static async searchUser(req: Request, res: Response): Promise<void> {
     try {
-      const users = await UserModel.find({}, "username profileImg");
-      if (users.length === 0) {
-        res.status(404).json({ message: "users not found" });
+      const { query } = req.query;
+
+      if (!query || typeof query !== "string") {
+        res
+          .status(400)
+          .json({ message: "search query is required and must be a string" });
         return;
       }
+
+      const users = await UserModel.find(
+        { username: { $regex: query, $options: "i" } },
+        "username profileImg",
+      );
+
+      if (!users.length) return;
 
       res.status(200).json({ users });
     } catch (err) {
