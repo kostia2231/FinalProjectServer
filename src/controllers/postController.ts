@@ -98,7 +98,7 @@ class PostController {
 
       const posts = await PostModel.find({ userId }).sort({ createdAt: -1 });
 
-      if (!posts || posts.length === 0) {
+      if (!posts) {
         res.status(404).json({ message: "no posts found for this user" });
         return;
       }
