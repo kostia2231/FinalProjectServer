@@ -1,4 +1,5 @@
 import validator from "validator";
+import mongoose from "mongoose";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
@@ -14,9 +15,19 @@ class UserControllers {
       }
 
       const user = await UserModel.findOne({ username }).select("-password");
+      if (!user) {
+        res.status(404).json({ message: "user not found" });
+        return;
+      }
+
+      const currentUserId = req.user?.id;
+      const objectIdCurrentUserId = new mongoose.Types.ObjectId(currentUserId);
+
+      const isFollowing = user.followers.includes(objectIdCurrentUserId);
+
       //populate to add;
 
-      res.status(200).json({ user });
+      res.status(200).json({ user, isFollowing });
     } catch (err) {
       console.error(`error fetching user: ${(err as Error).stack}`);
       res.status(500).json({
@@ -36,7 +47,17 @@ class UserControllers {
 
       const user = await UserModel.findOne({ _id: userId }).select("-password");
 
-      res.status(200).json({ user });
+      if (!user) {
+        res.status(404).json({ message: "user not found" });
+        return;
+      }
+
+      const currentUserId = req.user?.id;
+      const objectIdCurrentUserId = new mongoose.Types.ObjectId(currentUserId);
+
+      const isFollowing = user.followers.includes(objectIdCurrentUserId);
+
+      res.status(200).json({ user, isFollowing });
     } catch (err) {
       console.error(`error fetching user: ${(err as Error).stack}`);
       res.status(500).json({
