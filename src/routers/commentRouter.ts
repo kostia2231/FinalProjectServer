@@ -10,6 +10,14 @@ commentRouter.post(
   CommentController.addComment,
 );
 
+commentRouter.get("/:commentId", isAuthenticated, CommentController.getComment);
+
+commentRouter.get(
+  "/all/:postId",
+  isAuthenticated,
+  CommentController.getAllCommentsForPost,
+);
+
 commentRouter.delete(
   "/:commentId/delete",
   isAuthenticated,

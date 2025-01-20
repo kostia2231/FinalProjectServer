@@ -66,6 +66,57 @@ class CommentController {
     }
   }
 
+  public static async getComment(req: Request, res: Response): Promise<void> {
+    try {
+      const { commentId } = req.params;
+
+      const comment = await CommentModel.findById(commentId)
+        .populate("userId", "username")
+        .populate("parentCommentId");
+
+      if (!comment) {
+        res.status(404).json({ message: "сomment not found" });
+        return;
+      }
+
+      res.status(200).json({ comment });
+    } catch (err) {
+      res.status(500).json({
+        message: "error fetching comment",
+        error: (err as Error).message,
+      });
+    }
+  }
+
+  public static async getAllCommentsForPost(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    try {
+      const { postId } = req.params;
+
+      const post = await PostModel.findById(postId).populate({
+        path: "comments",
+        populate: [
+          { path: "userId", select: "username email" },
+          { path: "parentCommentId", select: "commentBody userId" },
+        ],
+      });
+
+      if (!post) {
+        res.status(404).json({ message: "post not found" });
+        return;
+      }
+
+      res.status(200).json({ comments: post.comments });
+    } catch (err) {
+      res.status(500).json({
+        message: "error fetching comments",
+        error: (err as Error).message,
+      });
+    }
+  }
+
   public static async deleteComment(
     req: Request,
     res: Response,

@@ -7,6 +7,7 @@ import postRouter from "./routers/postRouter.js";
 import commentRouter from "./routers/commentRouter.js";
 import subscriptionRouter from "./routers/subscriptionRouter.js";
 import likeRouter from "./routers/likeRouter.js";
+import commentlikeRouter from "./routers/commentLikeRouter.js";
 import "dotenv/config";
 
 class Server {
@@ -40,6 +41,7 @@ class Server {
     this.app.use("/", userRouter);
     this.app.use("/post", postRouter);
     this.app.use("/like", likeRouter);
+    this.app.use("/comment-like", commentlikeRouter);
     this.app.use("/comment", commentRouter);
     this.app.use("/subscription", subscriptionRouter);
   }
