@@ -14,7 +14,12 @@ postRouter.post(
 
 postRouter.get("/:postId", isAuthenticated, PostController.getPost);
 postRouter.get("/all/:userId", PostController.getUserPosts);
-postRouter.get("/all", isAuthenticated, PostController.getAllPosts);
+postRouter.get("/posts/all", isAuthenticated, PostController.getAllPosts);
+postRouter.get(
+  "/:userId/all-posts",
+  isAuthenticated,
+  PostController.getFollowingPosts,
+);
 
 postRouter.put("/edit/:postId", isAuthenticated, PostController.editPost);
 

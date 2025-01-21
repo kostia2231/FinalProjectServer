@@ -124,7 +124,47 @@ class PostController {
       res.status(200).json({ message: "posts fetched successfully", posts });
     } catch (err) {
       res.status(500).json({
-        message: "Error getting posts",
+        message: "error getting posts",
+        error: (err as Error).message,
+      });
+    }
+  }
+
+  public static async getFollowingPosts(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        res.status(401).json({ message: "authentication failed" });
+        return;
+      }
+
+      const user = await UserModel.findById(userId).populate("following");
+      if (!user) {
+        res.status(404).json({ message: "user not found" });
+        return;
+      }
+
+      const followingIds = user.following.map((following) => following._id);
+
+      const posts = await PostModel.find({
+        userId: { $in: followingIds },
+      }).sort({
+        createdAt: -1,
+      });
+
+      if (!posts || posts.length === 0) {
+        res.status(404).json({ message: "no posts found from followed users" });
+        return;
+      }
+
+      res.status(200).json({ message: "posts fetched successfully", posts });
+    } catch (err) {
+      res.status(500).json({
+        message: "error fetching posts from followed users",
         error: (err as Error).message,
       });
     }
