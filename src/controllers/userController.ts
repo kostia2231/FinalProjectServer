@@ -2,6 +2,7 @@ import validator from "validator";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import sharp from "sharp";
 import UserModel from "../models/User.js";
 import "dotenv/config";
 
@@ -24,8 +25,6 @@ class UserControllers {
       const objectIdCurrentUserId = new mongoose.Types.ObjectId(currentUserId);
 
       const isFollowing = user.followers.includes(objectIdCurrentUserId);
-
-      //populate to add;
 
       res.status(200).json({ user, isFollowing });
     } catch (err) {
@@ -143,6 +142,22 @@ class UserControllers {
           return;
         }
         user.website = website;
+      }
+
+      if (req.file) {
+        const inputBuffer = req.file.buffer;
+
+        const processedBuffer = await sharp(inputBuffer)
+          .resize({ width: 300, height: 300, fit: "cover" })
+          .toFormat("jpeg")
+          .jpeg({ quality: 80 })
+          .toBuffer();
+
+        const base64Image = `data:image/jpeg;base64,${processedBuffer.toString(
+          "base64",
+        )}`;
+
+        user.profileImg = base64Image;
       }
 
       await user.save();

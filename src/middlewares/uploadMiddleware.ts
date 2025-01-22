@@ -27,6 +27,8 @@ const upload = multer({
   fileFilter,
 }).array("images", 5);
 
+export const uploadAvatar = multer({ storage });
+
 export const uploadMiddleware = (
   req: Request,
   res: Response,
