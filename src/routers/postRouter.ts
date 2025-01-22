@@ -16,7 +16,7 @@ postRouter.get("/:postId", isAuthenticated, PostController.getPost);
 postRouter.get("/all/:userId", PostController.getUserPosts);
 postRouter.get("/posts/all", isAuthenticated, PostController.getAllPosts);
 postRouter.get(
-  "/:userId/all-posts",
+  "/:userId/all-following-posts",
   isAuthenticated,
   PostController.getFollowingPosts,
 );

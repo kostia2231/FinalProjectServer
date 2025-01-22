@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import LikeModel from "../models/Like.js";
 import PostModel from "../models/Post.js";
 import UserModel from "../models/User.js";
 import { FileUploader } from "../utils/imgUploader.js";
@@ -152,16 +153,37 @@ class PostController {
 
       const posts = await PostModel.find({
         userId: { $in: followingIds },
-      }).sort({
-        createdAt: -1,
-      });
+      })
+        .populate({
+          path: "userId",
+          select: "profileImg username _id",
+        })
+        .sort({ createdAt: -1 });
 
       if (!posts || posts.length === 0) {
         res.status(404).json({ message: "no posts found from followed users" });
         return;
       }
 
-      res.status(200).json({ message: "posts fetched successfully", posts });
+      const postsWithLikes = await Promise.all(
+        posts.map(async (post) => {
+          const isLiked = await LikeModel.exists({
+            postId: post._id,
+            userId,
+          });
+          return {
+            ...post.toObject(),
+            user: post.userId,
+            userId: undefined,
+            isLiked: !!isLiked,
+          };
+        }),
+      );
+
+      res.status(200).json({
+        message: "posts fetched successfully",
+        posts: postsWithLikes,
+      });
     } catch (err) {
       res.status(500).json({
         message: "error fetching posts from followed users",
