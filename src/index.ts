@@ -8,6 +8,7 @@ import commentRouter from "./routers/commentRouter.js";
 import subscriptionRouter from "./routers/subscriptionRouter.js";
 import likeRouter from "./routers/likeRouter.js";
 import commentlikeRouter from "./routers/commentLikeRouter.js";
+import notificationRouter from "./routers/NotificationRouter.js";
 import "dotenv/config";
 
 class Server {
@@ -44,6 +45,7 @@ class Server {
     this.app.use("/comment-like", commentlikeRouter);
     this.app.use("/comment", commentRouter);
     this.app.use("/subscription", subscriptionRouter);
+    this.app.use("/notification", notificationRouter);
   }
 
   public startServer() {
