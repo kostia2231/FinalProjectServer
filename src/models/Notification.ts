@@ -6,6 +6,7 @@ export interface INotification extends Document {
   senderUsername: string;
   senderProfileImg?: string;
   postId?: Types.ObjectId;
+  postImg?: string;
   commentId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +25,7 @@ const NotificationSchema = new Schema<INotification>(
     senderUsername: { type: String, required: true },
     senderProfileImg: { type: String },
     postId: { type: Schema.Types.ObjectId, ref: "Post" },
+    postImg: { type: String, default: "" },
     commentId: { type: Schema.Types.ObjectId, ref: "Comment" },
     createdAt: { type: Date, default: Date.now },
     isRead: { type: Boolean, default: false },
