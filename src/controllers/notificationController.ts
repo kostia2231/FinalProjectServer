@@ -125,6 +125,35 @@ class NotificationController {
       });
     }
   }
+
+  public static async deleteNotification(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    try {
+      const { notificationId } = req.params;
+
+      if (!notificationId) {
+        res.status(400).json({ message: "notificationId is required" });
+        return;
+      }
+
+      const notification =
+        await NotificationModel.findByIdAndDelete(notificationId);
+
+      if (!notification) {
+        res.status(404).json({ message: "notification not found" });
+        return;
+      }
+
+      res.status(200).json({ message: "notification deleted successfully" });
+    } catch (err) {
+      res.status(500).json({
+        message: "error deleting notification",
+        error: (err as Error).message,
+      });
+    }
+  }
 }
 
 export default NotificationController;
