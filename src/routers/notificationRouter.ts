@@ -1,6 +1,6 @@
+import NotificationController from "../controllers/notificationController.js";
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
-import NotificationController from "../controllers/notificationController.js";
 
 const notificationRouter = Router();
 
@@ -9,7 +9,11 @@ notificationRouter.get(
   isAuthenticated,
   NotificationController.getUserNotifications,
 );
-notificationRouter.post("/create", isAuthenticated);
+notificationRouter.post(
+  "/create",
+  isAuthenticated,
+  NotificationController.createNotification,
+);
 notificationRouter.delete("/delete/:notificationId", isAuthenticated);
 notificationRouter.patch(
   "/update/:notificationId",

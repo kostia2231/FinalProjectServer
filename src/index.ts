@@ -8,7 +8,7 @@ import commentRouter from "./routers/commentRouter.js";
 import subscriptionRouter from "./routers/subscriptionRouter.js";
 import likeRouter from "./routers/likeRouter.js";
 import commentlikeRouter from "./routers/commentLikeRouter.js";
-import notificationRouter from "./routers/NotificationRouter.js";
+import notificationRouter from "./routers/notificationRouter.js";
 import "dotenv/config";
 
 class Server {
