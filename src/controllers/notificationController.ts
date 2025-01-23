@@ -54,8 +54,8 @@ class NotificationController {
         senderUsername: sender.username,
         senderProfileImg: sender.profileImg,
         type,
-        postId: postId || null,
-        commentId: commentId || null,
+        postId: postId || undefined,
+        commentId: commentId || undefined,
         isRead: false,
       });
 
@@ -80,7 +80,7 @@ class NotificationController {
     try {
       const { userId } = req.params;
 
-      if (!userId || userId === req.user?.id) {
+      if (!userId) {
         res.status(403).json({ message: "you dont have an access" });
         return;
       }
@@ -89,7 +89,7 @@ class NotificationController {
         userId: userId,
       }).sort({ createdAt: -1 });
 
-      res.status(200).json({ message: "notifications: ", notifications });
+      res.status(200).json({ notifications });
     } catch (err) {
       res.status(500).json({
         message: "error getting notifications",

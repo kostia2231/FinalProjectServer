@@ -4,7 +4,7 @@ export interface INotification extends Document {
   userId: Types.ObjectId;
   senderId: Types.ObjectId;
   senderUsername: string;
-  senderProfileImg: string;
+  senderProfileImg?: string;
   postId?: Types.ObjectId;
   commentId?: Types.ObjectId;
   createdAt: Date;
@@ -22,7 +22,7 @@ const NotificationSchema = new Schema<INotification>(
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     senderId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     senderUsername: { type: String, required: true },
-    senderProfileImg: { type: String, required: true },
+    senderProfileImg: { type: String },
     postId: { type: Schema.Types.ObjectId, ref: "Post" },
     commentId: { type: Schema.Types.ObjectId, ref: "Comment" },
     createdAt: { type: Date, default: Date.now },

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import UserModel from "../models/User.js";
+import NotificationModel from "../models/Notification.js";
 
 class SubscriptionController {
   public static async follow(req: Request, res: Response): Promise<void> {
@@ -44,6 +45,17 @@ class SubscriptionController {
 
       await currentUser.save();
       await userToFollow.save();
+
+      await NotificationModel.create({
+        userId: objectIdUserId,
+        senderId: objectIdCurrentUserId,
+        senderUsername: currentUser.username,
+        senderProfileImg: currentUser.profileImg || "",
+        type: "started following you",
+        postId: undefined,
+        commentId: undefined,
+        isRead: false,
+      });
 
       res.status(200).json({ message: "followed successfully" });
     } catch (err) {
