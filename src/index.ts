@@ -1,4 +1,6 @@
 import express, { Application } from "express";
+import http from "http";
+import { Server as socketServer } from "socket.io";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRouter from "./routers/authRouter.js";
@@ -14,13 +16,22 @@ import "dotenv/config";
 class Server {
   private app: Application;
   private port: number;
+  private httpServer: http.Server;
+  private io: socketServer;
 
   constructor() {
     this.port = Number(process.env.PORT) || 8080;
     this.app = express();
+    this.httpServer = http.createServer(this.app);
+    this.io = new socketServer(this.httpServer, {
+      cors: {
+        origin: "*",
+      },
+    });
     this.Middlewares();
     this.InitDB();
     this.Routes();
+    this.SocketHandlers();
   }
 
   private Middlewares() {
@@ -46,6 +57,10 @@ class Server {
     this.app.use("/comment", commentRouter);
     this.app.use("/subscription", subscriptionRouter);
     this.app.use("/notification", notificationRouter);
+  }
+
+  private SocketHandlers() {
+    //////
   }
 
   public startServer() {
