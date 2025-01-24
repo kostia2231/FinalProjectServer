@@ -1,7 +1,6 @@
 import NotificationController from "../controllers/notificationController.js";
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
-import NotificationModel from "../models/Notification.js";
 
 const notificationRouter = Router();
 

@@ -2,6 +2,8 @@ import { Types, startSession } from "mongoose";
 import CommentModel from "../models/Comment.js";
 import { Request, Response } from "express";
 import PostModel from "../models/Post.js";
+import NotificationModel from "../models/Notification.js";
+import UserModel from "../models/User.js";
 
 class CommentController {
   public static async addComment(req: Request, res: Response): Promise<void> {
@@ -16,6 +18,12 @@ class CommentController {
       if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
         await session.abortTransaction();
+        return;
+      }
+
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        res.status(404).json({ message: "user not found" });
         return;
       }
 
@@ -51,6 +59,19 @@ class CommentController {
       await post.save({ session });
 
       await session.commitTransaction();
+
+      await NotificationModel.create({
+        userId: post.userId,
+        senderId: userId,
+        senderUsername: user.username,
+        senderProfileImg: user.profileImg || "",
+        type: "commented on your post",
+        commentBody: comment.commentBody,
+        postId,
+        postImg: undefined,
+        isRead: false,
+      });
+
       res.status(201).json({
         message: "Comment added successfully",
         comment,

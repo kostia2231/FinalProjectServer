@@ -1,3 +1,6 @@
+//исрпавить отправку нотиф/ самому себе
+//добавить нотиф/ для лайка на комментарий и комент под постом
+
 import { Request, Response } from "express";
 import UserModel from "../models/User.js";
 import NotificationModel from "../models/Notification.js";
